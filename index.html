@@ -80,6 +80,201 @@
   background-size: 40px 40px;
 }
 
+/* ── HERO COMBO CARD ── */
+.hero-dashboard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--glow), 0 24px 60px rgba(0,0,0,0.4);
+  animation: float-card 4s ease-in-out infinite;
+}
+
+.dash-top-bar {
+  background: var(--bg2);
+  padding: 11px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border2);
+}
+
+.dash-top-title {
+  font-size: 0.72rem;
+  color: var(--ink3);
+  font-family: monospace;
+  margin: 0 auto;
+}
+
+.dash-body {
+  padding: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+/* ── SECTION D: JSON Cheat Sheet ── */
+.json-card {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 10px 13px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.72rem;
+  line-height: 1.75;
+  position: relative;
+}
+
+.json-key   { color: var(--accent); }
+.json-str   { color: var(--gold); }
+.json-bool  { color: var(--green); }
+.json-arr   { color: var(--purple); }
+.json-dim   { color: var(--ink3); }
+
+.hire-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(52,211,153,0.1);
+  border: 1px solid rgba(52,211,153,0.25);
+  border-radius: 100px;
+  padding: 4px 11px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+
+.hire-badge-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: pulse-green 2s ease-in-out infinite;
+}
+
+/* ── SECTION E: Radar Chart ── */
+.radar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.radar-label-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.radar-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.6rem;
+  color: var(--ink3);
+}
+
+.radar-legend-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+#radar-canvas {
+  width: 100%;
+  max-width: 180px;
+  height: 140px;
+  display: block;
+}
+
+.radar-section-label {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  text-align: center;
+}
+
+/* ── SECTION F: Rotating Value Cards ── */
+.value-rotator {
+  position: relative;
+  height: 62px;
+  overflow: hidden;
+  border-radius: var(--r);
+}
+
+.value-slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 14px;
+  border-radius: var(--r);
+  border: 1px solid var(--border2);
+  background: var(--bg2);
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.22,1,0.36,1);
+  pointer-events: none;
+}
+
+.value-slide.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.value-slide-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.value-slide-text {
+  font-size: 0.78rem;
+  color: var(--ink2);
+  line-height: 1.45;
+  font-style: italic;
+}
+
+.value-slide-text strong {
+  color: var(--ink);
+  font-style: normal;
+}
+
+.value-dots {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.value-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ink3);
+  transition: background 0.3s, transform 0.3s;
+}
+
+.value-dot.active {
+  background: var(--accent);
+  transform: scale(1.3);
+}
+
+/* Divider */
+.card-divider {
+  height: 1px;
+  background: var(--border2);
+  margin: 0 -1.1rem;
+}
+
 /* ── HERO ENTRY ANIMATIONS ── */
 @keyframes hero-fade-up {
   from { opacity: 0; transform: translateY(24px); }
@@ -1057,28 +1252,93 @@ footer{
           </div>
         </div>
       </div>
-      <div class="hero-terminal">
-        <div class="terminal-header">
+      <!-- HERO COMBO CARD -->
+      <div class="hero-dashboard reveal-right">
+      
+        <!-- Top Bar -->
+        <div class="dash-top-bar">
           <div class="t-dot red"></div>
           <div class="t-dot yellow"></div>
           <div class="t-dot green"></div>
-          <span class="t-title">risk_model.py — running</span>
+          <span class="dash-top-title">candidate_profile.json</span>
         </div>
-        <div class="terminal-body">
-          <div class="t-line"><span class="t-prompt">$</span><span class="t-cmd"> python risk_model.py</span></div>
-          <div class="t-line"><span class="t-out">▶ Loading MSME dataset: </span><span class="t-val">5,000 borrowers</span></div>
-          <div class="t-line"><span class="t-out">▶ Features engineered: </span><span class="t-val">21 columns</span></div>
-          <div class="t-line"><span class="t-out">▶ Training XGBoost model...</span></div>
-          <div class="t-line"><span class="t-key">  AUC-ROC:</span><span class="t-success">  0.82 ✓</span></div>
-          <div class="t-line"><span class="t-key">  Precision:</span><span class="t-success"> 0.79 ✓</span></div>
-          <div class="t-line"><span class="t-out" style="margin-top:6px;">▶ Risk tiers assigned:</span></div>
-          <div class="t-bar-row"><span class="t-key" style="width:52px;font-size:0.72rem;">Green</span><div class="t-bar-bg"><div class="t-bar-fill" style="width:25%;background:#34d399;"></div></div><span class="t-val" style="font-size:0.72rem;">25%</span></div>
-          <div class="t-bar-row"><span class="t-key" style="width:52px;font-size:0.72rem;">Amber</span><div class="t-bar-bg"><div class="t-bar-fill" style="width:30%;background:#fbbf24;"></div></div><span class="t-val" style="font-size:0.72rem;">30%</span></div>
-          <div class="t-bar-row"><span class="t-key" style="width:52px;font-size:0.72rem;">Red  </span><div class="t-bar-bg"><div class="t-bar-fill" style="width:25%;background:#f87171;"></div></div><span class="t-val" style="font-size:0.72rem;">25%</span></div>
-          <div class="t-bar-row"><span class="t-key" style="width:52px;font-size:0.72rem;">Crit.</span><div class="t-bar-bg"><div class="t-bar-fill" style="width:20%;background:#c084fc;"></div></div><span class="t-warn" style="font-size:0.72rem;">20% ⚠</span></div>
-          <div class="t-line" style="margin-top:8px;"><span class="t-success">✓ Dashboard published to Power BI</span></div>
-          <div class="t-line"><span class="t-success">✓ AI narratives generated: 30</span></div>
-          <div class="t-line"><span class="t-prompt">$</span><span class="t-cursor"></span></div>
+      
+        <div class="dash-body">
+      
+          <!-- SECTION D: Recruiter Cheat Sheet -->
+          <div class="json-card">
+            <span class="json-dim">{</span><br>
+            &nbsp;<span class="json-key">"name"</span><span class="json-dim">:</span> <span class="json-str">"Sabarivenkatesh
+              K"</span><span class="json-dim">,</span><br>
+            &nbsp;<span class="json-key">"role"</span><span class="json-dim">:</span> <span class="json-str">"Data
+              Analyst"</span><span class="json-dim">,</span><br>
+            &nbsp;<span class="json-key">"experience"</span><span class="json-dim">:</span> <span class="json-str">"1 yr · UST
+              Global"</span><span class="json-dim">,</span><br>
+            &nbsp;<span class="json-key">"stack"</span><span class="json-dim">:</span> <span
+              class="json-arr">["Python","SQL","Power BI","ML"]</span><span class="json-dim">,</span><br>
+            &nbsp;<span class="json-key">"available"</span><span class="json-dim">:</span> <span
+              class="json-bool">true</span><br>
+            <span class="json-dim">}</span>
+            <br>
+            <div class="hire-badge">
+              <div class="hire-badge-dot"></div>
+              Ready to Hire
+            </div>
+          </div>
+      
+          <div class="card-divider"></div>
+      
+          <!-- SECTION E: Skill Radar -->
+          <div class="radar-wrap">
+            <div class="radar-section-label">Skill Radar</div>
+            <canvas id="radar-canvas"></canvas>
+            <div class="radar-label-row">
+              <div class="radar-legend-item">
+                <div class="radar-legend-dot" style="background:var(--accent)"></div>Python
+              </div>
+              <div class="radar-legend-item">
+                <div class="radar-legend-dot" style="background:var(--gold)"></div>SQL
+              </div>
+              <div class="radar-legend-item">
+                <div class="radar-legend-dot" style="background:var(--purple)"></div>Power BI
+              </div>
+              <div class="radar-legend-item">
+                <div class="radar-legend-dot" style="background:var(--green)"></div>ML
+              </div>
+              <div class="radar-legend-item">
+                <div class="radar-legend-dot" style="background:var(--red)"></div>Insight
+              </div>
+            </div>
+          </div>
+      
+          <div class="card-divider"></div>
+      
+          <!-- SECTION F: Rotating Value Cards -->
+          <div>
+            <div class="value-rotator">
+              <div class="value-slide active">
+                <div class="value-slide-icon">🔍</div>
+                <div class="value-slide-text"><strong>Story finder.</strong> I turn messy datasets into decisions that get
+                  acted on.</div>
+              </div>
+              <div class="value-slide">
+                <div class="value-slide-icon">⚡</div>
+                <div class="value-slide-text"><strong>Fast delivery.</strong> End-to-end dashboards — from raw data to Power
+                  BI in days.</div>
+              </div>
+              <div class="value-slide">
+                <div class="value-slide-icon">🤖</div>
+                <div class="value-slide-text"><strong>AI-augmented.</strong> I use LLMs to automate insight narration and
+                  anomaly detection.</div>
+              </div>
+            </div>
+            <div class="value-dots" style="margin-top:8px;">
+              <div class="value-dot active"></div>
+              <div class="value-dot"></div>
+              <div class="value-dot"></div>
+            </div>
+          </div>
+      
         </div>
       </div>
     </div>
@@ -1662,6 +1922,151 @@ function animParticles(){
   requestAnimationFrame(animParticles);
 }
 animParticles();
+
+// ── HERO COMBO CARD ──
+
+// SECTION E — Radar Chart
+(function initRadar() {
+  const canvas = document.getElementById('radar-canvas');
+  if (!canvas) return;
+
+  const dpr = window.devicePixelRatio || 1;
+  const W = 180, H = 140;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const cx = W / 2, cy = H / 2 + 4;
+  const maxR = 52;
+  const skills = [
+    { label: 'Python',   value: 0.88, color: '#38bdf8' },
+    { label: 'SQL',      value: 0.82, color: '#fbbf24' },
+    { label: 'Power BI', value: 0.85, color: '#a78bfa' },
+    { label: 'ML',       value: 0.75, color: '#34d399' },
+    { label: 'Insight',  value: 0.90, color: '#f87171' },
+  ];
+  const n = skills.length;
+  const angleStep = (Math.PI * 2) / n;
+  const startAngle = -Math.PI / 2;
+
+  let progress = 0;
+  let pulseT = 0;
+
+  function getPoint(i, r) {
+    const angle = startAngle + i * angleStep;
+    return {
+      x: cx + Math.cos(angle) * r,
+      y: cy + Math.sin(angle) * r
+    };
+  }
+
+  function drawRadar(prog, pulse) {
+    ctx.clearRect(0, 0, W, H);
+
+    // Grid rings
+    [0.25, 0.5, 0.75, 1].forEach(t => {
+      ctx.beginPath();
+      for (let i = 0; i < n; i++) {
+        const p = getPoint(i, maxR * t);
+        i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = 'rgba(56,189,248,0.08)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+
+    // Axis lines
+    skills.forEach((_, i) => {
+      const p = getPoint(i, maxR);
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(p.x, p.y);
+      ctx.strokeStyle = 'rgba(56,189,248,0.1)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+
+    // Skill labels
+    skills.forEach((s, i) => {
+      const p = getPoint(i, maxR + 14);
+      ctx.fillStyle = s.color;
+      ctx.font = `600 9px 'Cabinet Grotesk', sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(s.label, p.x, p.y);
+    });
+
+    // Filled skill polygon
+    const pulseMod = 1 + Math.sin(pulse) * 0.025;
+    ctx.beginPath();
+    skills.forEach((s, i) => {
+      const r = maxR * s.value * prog * pulseMod;
+      const p = getPoint(i, r);
+      i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+    });
+    ctx.closePath();
+    ctx.fillStyle   = 'rgba(56,189,248,0.12)';
+    ctx.strokeStyle = 'rgba(56,189,248,0.7)';
+    ctx.lineWidth   = 1.5;
+    ctx.fill();
+    ctx.stroke();
+
+    // Skill dots
+    skills.forEach((s, i) => {
+      const r = maxR * s.value * prog * pulseMod;
+      const p = getPoint(i, r);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+      ctx.fillStyle = s.color;
+      ctx.fill();
+    });
+  }
+
+  // Animate draw-in
+  let started = false;
+  function startRadar() {
+    if (started) return;
+    started = true;
+    function loop() {
+      progress = Math.min(progress + 0.025, 1);
+      pulseT += 0.04;
+      drawRadar(progress, pulseT);
+      if (progress < 1 || true) requestAnimationFrame(loop);
+    }
+    loop();
+  }
+
+  // Trigger on scroll into view
+  const radarObs = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) { startRadar(); radarObs.disconnect(); }
+  }, { threshold: 0.3 });
+  radarObs.observe(canvas);
+})();
+
+// SECTION F — Rotating Value Cards
+(function initRotator() {
+  const slides = document.querySelectorAll('.value-slide');
+  const dots   = document.querySelectorAll('.value-dot');
+  if (!slides.length) return;
+  let current = 0;
+
+  function goTo(index) {
+    slides[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    current = (index + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+  }
+
+  setInterval(() => goTo(current + 1), 3000);
+
+  // Dot click
+  dots.forEach((dot, i) => dot.addEventListener('click', () => goTo(i)));
+})();
 
 // ── TYPEWRITER ──
 const tw = document.getElementById('typewriter-target');
