@@ -2080,7 +2080,10 @@ footer{
       <div class="resume-bullet"><strong>Analyzed 96,000+ e-commerce orders from Olist Brazil dataset (2016–2018)</strong> using Python and Power BI — identified Health & Beauty as top revenue category (₹1M+), mapped São Paulo seller revenue concentration risk, tracked 89.48% overall on-time delivery rate and uncovered peak order hours (10AM–3PM) for marketing optimization.</div>
       <div class="resume-bullet"><strong>1 Year of professional Data Analyst experience at UST Global</strong> — applying Python, SQL, and BI tools to real business datasets, collaborating with cross-functional teams, and translating data findings into actionable recommendations for technical and non-technical stakeholders.</div>
     </div>
-    <a href="#" class="btn-primary reveal" style="display:inline-flex;margin-top:1rem;">Download Full Resume (PDF) →</a>
+    <a href="resume\Sabarivenkatesh_Data_Analyst_Resume.pdf" download="Sabari_Venkatesh_Resume.pdf" class="btn-primary reveal"
+      style="display:inline-flex;margin-top:1rem;">
+      Download Full Resume (PDF) →
+    </a>
   </div>
 </section>
 
@@ -2109,11 +2112,25 @@ footer{
       </div>
       <div class="reveal reveal-delay-1">
         <div class="contact-form">
-          <input class="cf-input" type="text" placeholder="Your Name" />
-          <input class="cf-input" type="email" placeholder="Your Email" />
-          <input class="cf-input" type="text" placeholder="Company / Role (optional)" />
-          <textarea class="cf-textarea" placeholder="Tell me about the opportunity or just say hello…"></textarea>
-          <button class="cf-btn">Send Message →</button>
+          <form id="contact-form" action="https://formspree.io/f/mbdpqjlk" method="POST"
+            style="display:flex; flex-direction:column; width:100%; gap:0;">
+      
+            <input class="cf-input" type="text" name="name" placeholder="Your Name" required />
+            <input class="cf-input" type="email" name="email" placeholder="Your Email" required />
+            <input class="cf-input" type="text" name="company" placeholder="Company / Role (optional)" />
+            <textarea class="cf-textarea" name="message" placeholder="Tell me about the opportunity or just say hello…"
+              required></textarea>
+      
+            <button class="cf-btn" type="submit">Send Message →</button>
+      
+            <p id="form-success" style="display:none; color:#22c55e; margin-top:0.75rem; font-weight:500;">
+              ✅ Message sent! I'll get back to you within 24 hours.
+            </p>
+            <p id="form-error" style="display:none; color:#ef4444; margin-top:0.75rem; font-weight:500;">
+              ❌ Something went wrong. Please email me at sabarivarun3@gmail.com
+            </p>
+      
+          </form>
         </div>
       </div>
     </div>
@@ -2169,6 +2186,7 @@ document.querySelectorAll('a,button,.proj-tab').forEach(el=>{
     cursorRing.style.borderColor='rgba(56,189,248,0.4)';
   });
 });
+
 
 // ── PARTICLE CANVAS (DATA FLOW) ──
 const pc = document.getElementById('particle-canvas');
@@ -2540,6 +2558,38 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>{
     if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'});}
   });
 });
+</script>
+<script>
+  const form = document.getElementById('contact-form');
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const btn = form.querySelector('.cf-btn');
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (res.ok) {
+        form.reset();
+        document.getElementById('form-success').style.display = 'block';
+        document.getElementById('form-error').style.display = 'none';
+        btn.textContent = 'Sent ✓';
+      } else {
+        throw new Error('Failed');
+      }
+    } catch {
+      document.getElementById('form-error').style.display = 'block';
+      document.getElementById('form-success').style.display = 'none';
+      btn.textContent = 'Send Message →';
+      btn.disabled = false;
+    }
+  });
 </script>
 </body>
 </html>
