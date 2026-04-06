@@ -645,23 +645,31 @@ body{
 h1,h2,h3,h4{font-family:'Clash Display',sans-serif;line-height:1.1;}
 a{color:inherit;text-decoration:none;}
 
-/* ── CUSTOM CURSOR ── */
-#cursor{
-  position:fixed;width:8px;height:8px;background:var(--accent);border-radius:50%;
-  pointer-events:none;z-index:9999;transform:translate(-50%,-50%);
-  transition:transform 0.1s,width 0.2s,height 0.2s,background 0.2s;
-  box-shadow:0 0 12px var(--accent);
+/* ── CUSTOM CURSOR (Athos system) ── */
+#cursor-dot {
+  position: fixed;
+  width: 10px; height: 10px;
+  background: var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%,-50%);
+  transition: width 0.3s ease, height 0.3s ease, background 0.3s ease;
+  box-shadow: 0 0 10px var(--accent);
 }
-#cursor-ring{
-  position:fixed;width:32px;height:32px;border:1px solid rgba(56,189,248,0.4);
-  border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);
-  transition:all 0.15s ease;
+#cursor-ring {
+  position: fixed;
+  width: 32px; height: 32px;
+  border: 1px solid rgba(56,189,248,0.4);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%,-50%);
+  transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease;
 }
+body.cursor-on-link #cursor-dot  { width: 14px; height: 14px; background: var(--accent); }
+body.cursor-on-link #cursor-ring { width: 44px; height: 44px; border-color: rgba(56,189,248,0.7); }
 
-/* ── PARTICLE CANVAS ── */
-#particle-canvas{
-  position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.6;
-}
 
 /* ── NAV ── */
 nav{
@@ -1190,14 +1198,22 @@ footer{
 }
 </style>
 </head>
-<body>
+<body style="cursor: none;">
 
-<!-- CURSOR -->
-<div id="cursor"></div>
-<div id="cursor-ring"></div>
+<!-- ATHOS GLOW BACKGROUND CANVAS -->
+<canvas id="glow-canvas" style="position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;"></canvas>
 
-<!-- PARTICLE CANVAS -->
-<canvas id="particle-canvas"></canvas>
+<!-- CURSOR REACTIVE SPOTLIGHT -->
+<div id="cursor-glow" style="position:fixed;width:600px;height:600px;border-radius:50%;pointer-events:none;z-index:2;transform:translate(-50%,-50%);filter:blur(30px);will-change:left,top;"></div>
+
+<!-- GRAIN OVERLAY -->
+<div id="grain" style="position:fixed;inset:0;z-index:3;pointer-events:none;opacity:0.032;background-image:url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27300%27 height=%27300%27%3E%3Cfilter id=%27f%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.75%27 numOctaves=%274%27 stitchTiles=%27stitch%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23f)%27 opacity=%271%27/%3E%3C/svg%3E');background-repeat:repeat;background-size:180px 180px;"></div>
+
+<!-- CUSTOM CURSOR (Athos style — replaces old #cursor) -->
+<div id="cursor-dot" style="position:fixed;width:10px;height:10px;background:#38bdf8;border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:normal;transition:width 0.3s,height 0.3s;"></div>
+<div id="cursor-ring" style="position:fixed;width:32px;height:32px;border:1px solid rgba(56,189,248,0.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);"></div>
+
+
 
 <!-- NAV -->
 <nav>
@@ -2162,88 +2178,121 @@ themeToggle.addEventListener('click', () => {
 
 
 
-// ── CUSTOM CURSOR ──
-const cursor = document.getElementById('cursor');
-const cursorRing = document.getElementById('cursor-ring');
-let mx=0,my=0,rx=0,ry=0;
-document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
-function animCursor(){
-  cursor.style.left=mx+'px';cursor.style.top=my+'px';
-  rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;
-  cursorRing.style.left=rx+'px';cursorRing.style.top=ry+'px';
-  requestAnimationFrame(animCursor);
+// ── ATHOS GLOW ENGINE + CURSOR SYSTEM ──
+const glowCanvas  = document.getElementById('glow-canvas');
+const glowCtx     = glowCanvas.getContext('2d');
+const dotEl       = document.getElementById('cursor-dot');
+const ringEl      = document.getElementById('cursor-ring');
+const spotlightEl = document.getElementById('cursor-glow');
+
+function resizeGlow() {
+  glowCanvas.width  = window.innerWidth;
+  glowCanvas.height = window.innerHeight;
 }
-animCursor();
-document.querySelectorAll('a,button,.proj-tab').forEach(el=>{
-  el.addEventListener('mouseenter',()=>{
-    cursor.style.width='14px';cursor.style.height='14px';
-    cursorRing.style.width='44px';cursorRing.style.height='44px';
-    cursorRing.style.borderColor='rgba(56,189,248,0.6)';
+resizeGlow();
+window.addEventListener('resize', resizeGlow);
+
+const blobs = [
+  { cx:0.50, cy:0.08, r:420, color:[255,190,60],  alpha:0.50, xA:220,yA:160, xF:0.00036,yF:0.00028, xP:0.0,yP:0.5, sA:0.18,sF:0.00011, oA:0.20,oF:0.00010 },
+  { cx:0.10, cy:0.35, r:380, color:[130,70,255],   alpha:0.45, xA:200,yA:220, xF:0.00030,yF:0.00034, xP:1.2,yP:2.1, sA:0.15,sF:0.00009, oA:0.18,oF:0.00012 },
+  { cx:0.88, cy:0.25, r:360, color:[30,195,195],   alpha:0.40, xA:180,yA:250, xF:0.00033,yF:0.00026, xP:2.4,yP:0.8, sA:0.20,sF:0.00013, oA:0.22,oF:0.00009 },
+  { cx:0.15, cy:0.78, r:340, color:[40,90,255],    alpha:0.38, xA:250,yA:180, xF:0.00024,yF:0.00031, xP:3.7,yP:1.5, sA:0.12,sF:0.00010, oA:0.16,oF:0.00013 },
+  { cx:0.85, cy:0.80, r:320, color:[255,65,130],   alpha:0.35, xA:210,yA:190, xF:0.00032,yF:0.00025, xP:4.9,yP:3.3, sA:0.16,sF:0.00012, oA:0.20,oF:0.00010 },
+  { cx:0.45, cy:0.15, r:240, color:[160,255,70],   alpha:0.28, xA:160,yA:140, xF:0.00042,yF:0.00036, xP:0.8,yP:4.1, sA:0.22,sF:0.00016, oA:0.18,oF:0.00014 },
+];
+const GLOW_FADE_START = performance.now();
+const GLOW_FADE_DUR   = 3000;
+
+function drawGlowBlobs(ts) {
+  const W = glowCanvas.width, H = glowCanvas.height;
+  const fadeT = Math.min((ts - GLOW_FADE_START) / GLOW_FADE_DUR, 1);
+  glowCtx.fillStyle = '#070b14';   // matches your --bg colour exactly
+  glowCtx.fillRect(0, 0, W, H);
+  blobs.forEach(b => {
+    const ax = b.cx * W, ay = b.cy * H;
+    const x = ax + Math.sin(ts*b.xF+b.xP)*b.xA + Math.sin(ts*b.xF*0.41+b.xP+1.1)*b.xA*0.38;
+    const y = ay + Math.cos(ts*b.yF+b.yP)*b.yA + Math.cos(ts*b.yF*0.57+b.yP+0.7)*b.yA*0.32;
+    const scale  = 1 + Math.sin(ts*b.sF+b.xP)*b.sA;
+    const radius = b.r * scale;
+    const opacity = (b.alpha + Math.sin(ts*b.oF+b.yP)*b.oA) * fadeT;
+    const [r,g,bl] = b.color;
+    const grad = glowCtx.createRadialGradient(x,y,0,x,y,radius);
+    grad.addColorStop(0,    `rgba(${r},${g},${bl},${opacity})`);
+    grad.addColorStop(0.35, `rgba(${r},${g},${bl},${opacity*0.55})`);
+    grad.addColorStop(0.65, `rgba(${r},${g},${bl},${opacity*0.18})`);
+    grad.addColorStop(1,    `rgba(${r},${g},${bl},0)`);
+    glowCtx.globalCompositeOperation = 'screen';
+    glowCtx.fillStyle = grad;
+    glowCtx.beginPath();
+    glowCtx.arc(x, y, radius, 0, Math.PI*2);
+    glowCtx.fill();
   });
-  el.addEventListener('mouseleave',()=>{
-    cursor.style.width='8px';cursor.style.height='8px';
-    cursorRing.style.width='32px';cursorRing.style.height='32px';
-    cursorRing.style.borderColor='rgba(56,189,248,0.4)';
-  });
+  glowCtx.globalCompositeOperation = 'source-over';
+  const vig = glowCtx.createRadialGradient(W*0.5,H*0.5,H*0.15,W*0.5,H*0.5,H*0.95);
+  vig.addColorStop(0,'rgba(0,0,0,0)');
+  vig.addColorStop(1,'rgba(0,0,0,0.55)');
+  glowCtx.fillStyle = vig;
+  glowCtx.fillRect(0, 0, W, H);
+}
+
+let glowMouseX = window.innerWidth/2,  glowMouseY = window.innerHeight/2;
+let glowRingX  = glowMouseX,           glowRingY  = glowMouseY;
+let glowSpotX  = glowMouseX,           glowSpotY  = glowMouseY;
+const glowColors = [
+  {r:56, g:189,b:248},   // accent blue (matches your --accent)
+  {r:80, g:200,b:220},   // teal
+  {r:167,g:139,b:250},   // purple
+  {r:52, g:211,b:153},   // green
+  {r:251,g:191,b: 36},   // gold
+];
+let glowCurrentColor = {...glowColors[0]};
+let glowTargetColor  = {...glowColors[0]};
+let glowColorTimer = 0, glowColorIdx = 0;
+
+document.addEventListener('mousemove', e => {
+  glowMouseX = e.clientX;
+  glowMouseY = e.clientY;
+  dotEl.style.left = glowMouseX + 'px';
+  dotEl.style.top  = glowMouseY + 'px';
 });
 
+document.querySelectorAll('a, button, .proj-tab').forEach(el => {
+  el.addEventListener('mouseenter', () => document.body.classList.add('cursor-on-link'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-on-link'));
+});
 
-// ── PARTICLE CANVAS (DATA FLOW) ──
-const pc = document.getElementById('particle-canvas');
-const ctx = pc.getContext('2d');
-let particles = [];
-function resizeCanvas(){ pc.width=window.innerWidth;pc.height=window.innerHeight; }
-resizeCanvas();
-window.addEventListener('resize',resizeCanvas);
-class Particle{
-  constructor(){
-    this.x = Math.random()*pc.width;
-    this.y = Math.random()*pc.height;
-    this.vx = (Math.random()-0.5)*0.6;
-    this.vy = (Math.random()-0.5)*0.6;
-    this.size = Math.random()*2+0.5;
-    this.opacity = Math.random()*0.5+0.1;
-    this.color = Math.random()>0.7?'56,189,248':Math.random()>0.5?'52,211,153':'167,139,250';
+function glowLerp(a,b,t){ return a+(b-a)*t; }
+
+function glowLoop(ts) {
+  drawGlowBlobs(ts);
+  glowRingX = glowLerp(glowRingX, glowMouseX, 0.10);
+  glowRingY = glowLerp(glowRingY, glowMouseY, 0.10);
+  ringEl.style.left = glowRingX + 'px';
+  ringEl.style.top  = glowRingY + 'px';
+  glowSpotX = glowLerp(glowSpotX, glowMouseX, 0.06);
+  glowSpotY = glowLerp(glowSpotY, glowMouseY, 0.06);
+  spotlightEl.style.left = glowSpotX + 'px';
+  spotlightEl.style.top  = glowSpotY + 'px';
+  glowColorTimer++;
+  if (glowColorTimer > 180) {
+    glowColorTimer = 0;
+    glowColorIdx = (glowColorIdx + 1) % glowColors.length;
+    glowTargetColor = glowColors[glowColorIdx];
   }
-  update(){
-    this.x+=this.vx;this.y+=this.vy;
-    if(this.x<0)this.x=pc.width;
-    if(this.x>pc.width)this.x=0;
-    if(this.y<0)this.y=pc.height;
-    if(this.y>pc.height)this.y=0;
-  }
-  draw(){
-    ctx.beginPath();
-    ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
-    ctx.fillStyle=`rgba(${this.color},${this.opacity})`;
-    ctx.fill();
-  }
+  glowCurrentColor.r = glowLerp(glowCurrentColor.r, glowTargetColor.r, 0.008);
+  glowCurrentColor.g = glowLerp(glowCurrentColor.g, glowTargetColor.g, 0.008);
+  glowCurrentColor.b = glowLerp(glowCurrentColor.b, glowTargetColor.b, 0.008);
+  const {r,g,b} = glowCurrentColor;
+  spotlightEl.style.background = `radial-gradient(ellipse at center,
+    rgba(${r},${g},${b},0.13) 0%,
+    rgba(${Math.round(r*0.6)},${Math.round(g*0.6)},${Math.round(b*0.6)},0.06) 40%,
+    transparent 68%)`;
+  requestAnimationFrame(glowLoop);
 }
-for(let i=0;i<120;i++) particles.push(new Particle());
-function drawConnections(){
-  for(let i=0;i<particles.length;i++){
-    for(let j=i+1;j<particles.length;j++){
-      const dx=particles[i].x-particles[j].x;
-      const dy=particles[i].y-particles[j].y;
-      const dist=Math.sqrt(dx*dx+dy*dy);
-      if(dist<100){
-        ctx.beginPath();
-        ctx.moveTo(particles[i].x,particles[i].y);
-        ctx.lineTo(particles[j].x,particles[j].y);
-        ctx.strokeStyle=`rgba(56,189,248,${0.08*(1-dist/100)})`;
-        ctx.lineWidth=0.5;
-        ctx.stroke();
-      }
-    }
-  }
-}
-function animParticles(){
-  ctx.clearRect(0,0,pc.width,pc.height);
-  drawConnections();
-  particles.forEach(p=>{p.update();p.draw();});
-  requestAnimationFrame(animParticles);
-}
-animParticles();
+requestAnimationFrame(glowLoop);
+
+
+
 
 // ── HERO COMBO CARD ──
 
